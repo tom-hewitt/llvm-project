@@ -1,5 +1,25 @@
 {
   "type": "arm-etm",
+  "traceUnits": [
+    {
+      "regIdr0": "0x280006e1",
+      "regIdr1": "0x4100f422",
+      "regIdr2": "0x00000004",
+      "regIdr8": "0x00000000",
+      "regIdr9": "0x00000000",
+      "regIdr10": "0x00000000",
+      "regIdr11": "0x00000000",
+      "regIdr12": "0x00000001",
+      "regIdr13": "0x00000000",
+
+      "regConfigr": "0x00000001",
+      
+      "regTraceidr": "0x00000000",
+
+      "archVersion": "v8",
+      "coreProfile": "Cortex-M"
+    }
+  ],
   "processes": [
     {
       "pid": 0,

@@ -99,6 +99,32 @@ StringRef TraceArmETMBundleLoader::GetSchema() {
   if (schema.empty()) {
     schema = R"({
   "type": "arm-etm",
+  "traceUnits": [
+    {
+      // Coresight identification registers.
+      // Read-only registers providing standard information about the trace hardware, such as the supported features.
+      "regIdr0": integer | hex string, // TRCID0 register
+      "regIdr1": integer | hex string, // TRCID1 register
+      "regIdr2": integer | hex string, // TRCID2 register
+      "regIdr8": integer | hex string, // TRCID8 register
+      "regIdr9": integer | hex string, // TRCID9 register
+      "regIdr10": integer | hex string, // TRCID10 register
+      "regIdr11": integer | hex string, // TRCID11 register
+      "regIdr12": integer | hex string, // TRCID12 register
+      "regIdr13": integer | hex string, // TRCID13 register
+
+      // Trace configuration register.
+      // Read-write register that controls the trace hardware.
+      "regConfigr": integer | hex string, // TRCCONFIGR register
+
+      // Trace ID register.
+      // Read-write register that controls the trace ID on the trace bus.
+      "regTraceidr": integer | hex string, // TRCTRACEIDR register
+
+      "archVersion": string, // Architecture version ("v8", "v8r3", "v7", "aa64")
+      "coreProfile": string // Core profile ("Cortex-A", "Cortex-M", "Cortex-R")
+    }
+  ], 
   "processes?": [
     {
       "pid": integer,

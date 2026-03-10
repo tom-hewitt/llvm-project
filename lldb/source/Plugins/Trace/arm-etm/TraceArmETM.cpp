@@ -8,7 +8,9 @@
 
 #include "TraceArmETM.h"
 
+#include "DecodedThread.h"
 #include "TraceArmETMBundleLoader.h"
+#include "TraceCursorArmETM.h"
 #include "lldb/Core/PluginManager.h"
 #include "lldb/Target/Process.h"
 
@@ -74,16 +76,45 @@ TraceArmETMSP TraceArmETM::CreateInstanceForPostmortemTrace(
 
   for (const ProcessSP &process_sp : traced_processes)
     process_sp->GetTarget().SetTrace(trace_sp);
+
+  for (const ThreadPostMortemTraceSP &thread : traced_threads) {
+    trace_sp->m_thread_decoders.try_emplace(
+        thread->GetID(), std::make_unique<ThreadDecoder>(thread, *trace_sp));
+
+    if (const std::optional<FileSpec> &trace_file = thread->GetTraceFile()) {
+      trace_sp->SetPostMortemThreadDataFile(thread->GetID(), "etmTrace",
+                                            *trace_file);
+    }
+  }
+
+  for (const ProcessSP &process_sp : traced_processes)
+    process_sp->GetTarget().SetTrace(trace_sp);
+
   return trace_sp;
 }
 
 TraceArmETM::TraceArmETM(JSONTraceBundleDescription &bundle_description,
                          llvm::ArrayRef<lldb::ProcessSP> traced_processes)
-    : Trace(traced_processes, std::nullopt) {}
+    : Trace(traced_processes, std::nullopt) {
+  for (JSONTraceUnit &unit : bundle_description.trace_units)
+    m_trace_unit_cfgs.push_back(unit.MakeCSConfig());
+}
+
+Expected<DecodedThreadSP> TraceArmETM::Decode(Thread &thread) {
+  auto it = m_thread_decoders.find(thread.GetID());
+  if (it == m_thread_decoders.end())
+    return createStringError(inconvertibleErrorCode(), "thread not traced");
+
+  return it->second->get()->Decode();
+}
 
 llvm::Expected<lldb::TraceCursorSP>
 TraceArmETM::CreateNewCursor(Thread &thread) {
-  llvm_unreachable("Unimplemented");
+  if (Expected<DecodedThreadSP> decoded_thread = Decode(thread)) {
+    return std::make_shared<TraceCursorArmETM>(thread.shared_from_this(),
+                                               *decoded_thread);
+  } else
+    return decoded_thread.takeError();
 }
 
 void TraceArmETM::DumpTraceInfo(Thread &thread, Stream &s, bool verbose,
@@ -107,4 +138,15 @@ Error TraceArmETM::Start(StructuredData::ObjectSP configuration) {
 Error TraceArmETM::Start(llvm::ArrayRef<lldb::tid_t> tids,
                          StructuredData::ObjectSP configuration) {
   llvm_unreachable("Unimplemented");
+}
+
+llvm::iterator_range<TraceArmETM::TraceUnitConfigIterator>
+TraceArmETM::GetTraceUnitConfigs() const {
+  return llvm::iterator_range<TraceUnitConfigIterator>(
+      m_trace_unit_cfgs.begin(), m_trace_unit_cfgs.end());
+}
+
+Error TraceArmETM::OnThreadBufferRead(lldb::tid_t tid,
+                                      OnBinaryDataReadCallback callback) {
+  return OnThreadBinaryDataRead(tid, "etmTrace", callback);
 }

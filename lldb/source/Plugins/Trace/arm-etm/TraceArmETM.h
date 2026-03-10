@@ -9,9 +9,11 @@
 #ifndef LLDB_SOURCE_PLUGINS_TRACE_ARM_ETM_TRACEARMETM_H
 #define LLDB_SOURCE_PLUGINS_TRACE_ARM_ETM_TRACEARMETM_H
 
+#include "ThreadDecoder.h"
 #include "TraceArmETMBundleLoader.h"
 #include "forward-declarations.h"
 #include "lldb/Target/Trace.h"
+#include "lldb/lldb-types.h"
 
 namespace lldb_private {
 namespace trace_arm_etm {
@@ -86,6 +88,16 @@ public:
                     StructuredData::ObjectSP configuration =
                         StructuredData::ObjectSP()) override;
 
+  /// See \a Trace::OnThreadBinaryDataRead().
+  llvm::Error OnThreadBufferRead(lldb::tid_t tid,
+                                 OnBinaryDataReadCallback callback);
+
+  using TraceUnitConfigs = std::vector<std::unique_ptr<CSConfig>>;
+  using TraceUnitConfigIterator =
+      llvm::pointee_iterator<TraceUnitConfigs::const_iterator>;
+
+  llvm::iterator_range<TraceUnitConfigIterator> GetTraceUnitConfigs() const;
+
 private:
   friend class TraceArmETMBundleLoader;
 
@@ -120,6 +132,24 @@ private:
 
   /// Constructor for live processes
   TraceArmETM(Process &live_process) : Trace(live_process) {};
+
+  /// Decode the trace of the given thread that, i.e. recontruct the traced
+  /// instructions.
+  ///
+  /// \param[in] thread
+  ///     If \a thread is a \a ThreadTrace, then its internal trace file will be
+  ///     decoded. Live threads are not currently supported.
+  ///
+  /// \return
+  ///     A \a DecodedThread shared pointer with the decoded instructions. Any
+  ///     errors are embedded in the instruction list. An \a llvm::Error is
+  ///     returned if the decoder couldn't be properly set up.
+  llvm::Expected<DecodedThreadSP> Decode(Thread &thread);
+
+  llvm::DenseMap<lldb::tid_t, std::optional<std::unique_ptr<ThreadDecoder>>>
+      m_thread_decoders;
+
+  std::vector<std::unique_ptr<CSConfig>> m_trace_unit_cfgs;
 };
 
 } // namespace trace_arm_etm
