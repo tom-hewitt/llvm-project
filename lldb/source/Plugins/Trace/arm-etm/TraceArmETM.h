@@ -9,6 +9,7 @@
 #ifndef LLDB_SOURCE_PLUGINS_TRACE_ARM_ETM_TRACEARMETM_H
 #define LLDB_SOURCE_PLUGINS_TRACE_ARM_ETM_TRACEARMETM_H
 
+#include "Plugins/Process/Trace/ThreadTrace.h"
 #include "ThreadDecoder.h"
 #include "TraceArmETMBundleLoader.h"
 #include "forward-declarations.h"
@@ -122,7 +123,7 @@ private:
   static TraceArmETMSP CreateInstanceForPostmortemTrace(
       JSONTraceBundleDescription &bundle_description,
       llvm::ArrayRef<lldb::ProcessSP> traced_processes,
-      llvm::ArrayRef<lldb::ThreadPostMortemTraceSP> traced_threads);
+      llvm::ArrayRef<lldb_private::ThreadTraceSP> traced_threads);
 
   /// This constructor is used by CreateInstanceForPostmortemTrace to get the
   /// instance ready before using shared pointers, which is a limitation of C++.

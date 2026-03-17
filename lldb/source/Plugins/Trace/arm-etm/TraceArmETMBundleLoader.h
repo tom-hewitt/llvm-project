@@ -9,7 +9,7 @@
 #ifndef LLDB_SOURCE_PLUGINS_TRACE_ARM_ETM_TRACEARMETMBUNDLELOADER_H
 #define LLDB_SOURCE_PLUGINS_TRACE_ARM_ETM_TRACEARMETMBUNDLELOADER_H
 
-#include "../common/ThreadPostMortemTrace.h"
+#include "Plugins/Process/Trace/forward-declarations.h"
 #include "../common/TraceBundleLoader.h"
 #include "TraceArmETMJSONStructs.h"
 
@@ -50,8 +50,8 @@ public:
 private:
   /// Create a post-mortem thread associated with the given \p process
   /// using the definition from \p thread.
-  lldb::ThreadPostMortemTraceSP ParseThread(Process &process,
-                                            const JSONThread &thread);
+  lldb_private::ThreadTraceSP ParseThread(Process &process,
+                                   const JSONThread &thread);
 
   /// Given a bundle description and a list of fully parsed processes,
   /// create an actual Trace instance that "traces" these processes.

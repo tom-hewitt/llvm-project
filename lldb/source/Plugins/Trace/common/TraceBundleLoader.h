@@ -9,6 +9,7 @@
 #ifndef LLDB_SOURCE_PLUGINS_TRACE_COMMON_TRACEBUNDLELOADER_H
 #define LLDB_SOURCE_PLUGINS_TRACE_COMMON_TRACEBUNDLELOADER_H
 
+#include "Plugins/Process/Trace/forward-declarations.h"
 #include "TraceJSONStructs.h"
 #include "lldb/lldb-types.h"
 #include "llvm/Support/JSON.h"
@@ -20,7 +21,7 @@ public:
   /// Helper struct holding the objects created when parsing a process
   struct ParsedProcess {
     lldb::TargetSP target_sp;
-    std::vector<lldb::ThreadPostMortemTraceSP> threads;
+    std::vector<lldb_private::ThreadTraceSP> threads;
   };
 
   /// \param[in] debugger

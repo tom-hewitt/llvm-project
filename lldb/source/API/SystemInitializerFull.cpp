@@ -16,7 +16,6 @@
 #include "lldb/Host/Host.h"
 #include "lldb/Initialization/SystemInitializerCommon.h"
 #include "lldb/Interpreter/CommandInterpreter.h"
-#include "lldb/Target/ProcessTrace.h"
 #include "lldb/Utility/Timer.h"
 #include "lldb/Version/Version.h"
 #include "llvm/Support/CommandLine.h"
@@ -122,9 +121,6 @@ void SystemInitializerFull::Terminate() {
   Debugger::Terminate();
 
   Debugger::SettingsTerminate();
-
-  // Terminate plug-ins in core LLDB.
-  ProcessTrace::Terminate();
 
   // Terminate and unload and loaded system or user LLDB plug-ins.
   PluginManager::Terminate();

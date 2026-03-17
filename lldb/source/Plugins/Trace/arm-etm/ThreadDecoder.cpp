@@ -6,7 +6,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "ThreadDecoder.h"
-#include "../common/ThreadPostMortemTrace.h"
+
 #include "OpenCSDDecoder.h"
 #include "TraceArmETM.h"
 #include "llvm/Support/MemoryBuffer.h"

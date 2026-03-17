@@ -8,12 +8,10 @@
 
 #include "TraceBundleLoader.h"
 
-#include "ThreadPostMortemTrace.h"
 #include "TraceJSONStructs.h"
 #include "lldb/Core/Debugger.h"
 #include "lldb/Core/Module.h"
 #include "lldb/Target/Process.h"
-#include "lldb/Target/ProcessTrace.h"
 #include "lldb/Target/Target.h"
 #include <optional>
 
@@ -74,7 +72,6 @@ TraceBundleLoader::CreateEmptyProcess(lldb::pid_t pid, llvm::StringRef triple) {
   ParsedProcess parsed_process;
   parsed_process.target_sp = target_sp;
 
-  ProcessTrace::Initialize();
   ProcessSP process_sp = target_sp->CreateProcess(
       /*listener*/ nullptr, "trace",
       /*crash_file*/ nullptr,

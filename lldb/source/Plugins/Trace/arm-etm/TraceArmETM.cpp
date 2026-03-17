@@ -8,6 +8,7 @@
 
 #include "TraceArmETM.h"
 
+#include "Plugins/Process/Trace/ThreadTrace.h"
 #include "DecodedThread.h"
 #include "TraceArmETMBundleLoader.h"
 #include "TraceCursorArmETM.h"
@@ -71,13 +72,13 @@ Expected<TraceSP> TraceArmETM::CreateInstanceForLiveProcess(Process &process) {
 TraceArmETMSP TraceArmETM::CreateInstanceForPostmortemTrace(
     JSONTraceBundleDescription &bundle_description,
     ArrayRef<ProcessSP> traced_processes,
-    ArrayRef<ThreadPostMortemTraceSP> traced_threads) {
+    ArrayRef<ThreadTraceSP> traced_threads) {
   TraceArmETMSP trace_sp(new TraceArmETM(bundle_description, traced_processes));
 
   for (const ProcessSP &process_sp : traced_processes)
     process_sp->GetTarget().SetTrace(trace_sp);
 
-  for (const ThreadPostMortemTraceSP &thread : traced_threads) {
+  for (const ThreadTraceSP &thread : traced_threads) {
     trace_sp->m_thread_decoders.try_emplace(
         thread->GetID(), std::make_unique<ThreadDecoder>(thread, *trace_sp));
 
@@ -87,8 +88,12 @@ TraceArmETMSP TraceArmETM::CreateInstanceForPostmortemTrace(
     }
   }
 
-  for (const ProcessSP &process_sp : traced_processes)
-    process_sp->GetTarget().SetTrace(trace_sp);
+  ArchSpec process_arch;
+  for (const ProcessSP &process_sp : traced_processes) {
+    // We invoke DidAttach to create a correct stopped state for the process and
+    // its threads.
+    process_sp->DidAttach(process_arch);
+  }
 
   return trace_sp;
 }

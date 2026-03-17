@@ -8,9 +8,10 @@
 
 #include "TraceArmETMBundleLoader.h"
 
+#include "Plugins/Process/Trace/forward-declarations.h"
+#include "Plugins/Process/Trace/ThreadTrace.h"
 #include "TraceArmETM.h"
 #include "lldb/Core/Debugger.h"
-#include "lldb/Target/ProcessTrace.h"
 
 using namespace lldb;
 using namespace lldb_private;
@@ -27,7 +28,7 @@ Error TraceArmETMBundleLoader::CreateJSONError(json::Path::Root &root,
       toString(root.getError()).c_str(), err.c_str(), GetSchema().data());
 }
 
-ThreadPostMortemTraceSP
+ThreadTraceSP
 TraceArmETMBundleLoader::ParseThread(Process &process,
                                      const JSONThread &thread) {
   lldb::tid_t tid = static_cast<lldb::tid_t>(thread.tid);
@@ -36,8 +37,8 @@ TraceArmETMBundleLoader::ParseThread(Process &process,
   if (thread.etm_trace)
     trace_file = FileSpec(*thread.etm_trace);
 
-  ThreadPostMortemTraceSP thread_sp =
-      std::make_shared<ThreadPostMortemTrace>(process, tid, trace_file);
+  ThreadTraceSP thread_sp =
+      std::make_shared<ThreadTrace>(process, tid, trace_file);
   process.GetThreadList().AddThread(thread_sp);
   return thread_sp;
 }
@@ -61,11 +62,6 @@ TraceArmETMBundleLoader::ParseProcess(const JSONProcess &process) {
 
   if (!process.threads.empty())
     process_sp->GetThreadList().SetSelectedThreadByIndexID(0);
-
-  // We invoke DidAttach to create a correct stopped state for the process and
-  // its threads.
-  ArchSpec process_arch;
-  process_sp->DidAttach(process_arch);
 
   return parsed_process;
 }
@@ -167,7 +163,7 @@ Notes:
 Expected<TraceSP> TraceArmETMBundleLoader::CreateTraceArmETMInstance(
     JSONTraceBundleDescription &bundle_description,
     std::vector<ParsedProcess> &parsed_processes) {
-  std::vector<ThreadPostMortemTraceSP> threads;
+  std::vector<ThreadTraceSP> threads;
   std::vector<ProcessSP> processes;
   for (const ParsedProcess &parsed_process : parsed_processes) {
     processes.push_back(parsed_process.target_sp->GetProcessSP());

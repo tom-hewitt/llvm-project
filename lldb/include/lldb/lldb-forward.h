@@ -255,7 +255,6 @@ class ThreadPlanStepRange;
 class ThreadPlanStepThrough;
 class ThreadPlanTracer;
 class ThreadSpec;
-class ThreadPostMortemTrace;
 class ThreadedCommunication;
 class Trace;
 class TraceCursor;
@@ -470,8 +469,6 @@ typedef std::shared_ptr<lldb_private::Thread> ThreadSP;
 typedef std::weak_ptr<lldb_private::Thread> ThreadWP;
 typedef std::shared_ptr<lldb_private::ThreadCollection> ThreadCollectionSP;
 typedef std::shared_ptr<lldb_private::ThreadPlan> ThreadPlanSP;
-typedef std::shared_ptr<lldb_private::ThreadPostMortemTrace>
-    ThreadPostMortemTraceSP;
 typedef std::weak_ptr<lldb_private::ThreadPlan> ThreadPlanWP;
 typedef std::shared_ptr<lldb_private::ThreadPlanTracer> ThreadPlanTracerSP;
 typedef std::shared_ptr<lldb_private::Trace> TraceSP;
