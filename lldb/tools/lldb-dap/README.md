@@ -140,6 +140,21 @@ This loads the coredump file `/cores/123.core` associated with the program
 }
 ```
 
+### Loading a Trace
+
+This loads the trace file `traces/123/trace.json` associated
+with the program `/tmp/a.out`:
+
+```javascript
+{
+  "name": "Load trace",
+  "type": "lldb-dap",
+  "request": "attach",
+  "traceFile": "/traces/123/trace.json",
+  "program": "/tmp/a.out"
+}
+```
+
 ### Connect to a Debug Server on the Current Machine
 
 This connects to a debug server (e.g. `lldb-server`, `gdbserver`) on

@@ -863,6 +863,10 @@
                 "type": "string",
                 "description": "Path to the core file to debug."
               },
+              "traceFile": {
+                "type": "string",
+                "description": "Path to the trace file to debug."
+              },
               "timeout": {
                 "type": "number",
                 "description": "The time in seconds to wait for a program to stop when attaching using \"attachCommands\". Defaults to 30 seconds."
@@ -956,6 +960,17 @@
               "name": "${2:Core}",
               "program": "${1:<your program>}",
               "coreFile": "${1:<your program>}.core"
+            }
+          },
+          {
+            "label": "LLDB: Load Trace",
+            "description": "",
+            "body": {
+              "type": "lldb-dap",
+              "request": "attach",
+              "name": "${2:Trace}",
+              "program": "${1:<your program>}",
+              "traceFile": "${1:<your program>}/trace.json"
             }
           }
         ]

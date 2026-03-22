@@ -351,15 +351,16 @@ bool fromJSON(const json::Value &Params, AttachRequestArguments &ARA,
                  O.mapOptional("gdb-remote-port", ARA.gdbRemotePort) &&
                  O.mapOptional("gdb-remote-hostname", ARA.gdbRemoteHostname) &&
                  O.mapOptional("coreFile", ARA.coreFile) &&
+                 O.mapOptional("traceFile", ARA.traceFile) &&
                  O.mapOptional("session", ARA.session);
   if (!success)
     return false;
   // Validate that we have a well formed attach request.
-  if (ARA.attachCommands.empty() && ARA.coreFile.empty() &&
+  if (ARA.attachCommands.empty() && ARA.coreFile.empty() && ARA.traceFile.empty() &&
       ARA.configuration.program.empty() && ARA.pid == LLDB_INVALID_PROCESS_ID &&
       ARA.gdbRemotePort == LLDB_DAP_INVALID_PORT && !ARA.session.has_value()) {
     P.report("expected one of 'pid', 'program', 'attachCommands', "
-             "'coreFile', 'gdb-remote-port', or 'session' to be specified");
+             "'coreFile', 'traceFile', 'gdb-remote-port', or 'session' to be specified");
     return false;
   }
   // Check if we have mutually exclusive arguments.

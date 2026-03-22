@@ -360,6 +360,9 @@ struct AttachRequestArguments {
   /// Path to the core file to debug.
   String coreFile;
 
+  /// Path to the trace file to debug.
+  String traceFile;
+
   /// An existing session that consist of a target and debugger.
   std::optional<DAPSession> session;
 

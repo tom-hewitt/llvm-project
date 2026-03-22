@@ -12,6 +12,7 @@
 #include "Protocol/ProtocolRequests.h"
 #include "RequestHandler.h"
 #include "lldb/API/SBAttachInfo.h"
+#include "lldb/API/SBFileSpec.h"
 #include "lldb/API/SBListener.h"
 #include "lldb/lldb-defines.h"
 #include "llvm/Support/Error.h"
@@ -37,7 +38,7 @@ Error AttachRequestHandler::Run(const AttachRequestArguments &args) const {
     return err;
 
   dap.SetConfiguration(args.configuration, /*is_attach=*/true);
-  if (!args.coreFile.empty())
+  if (!args.coreFile.empty() || !args.traceFile.empty())
     dap.stop_at_entry = true;
 
   PrintWelcomeMessage();
@@ -109,6 +110,9 @@ Error AttachRequestHandler::Run(const AttachRequestArguments &args) const {
             "attachCommands failed to attach to a process");
     } else if (!args.coreFile.empty()) {
       dap.target.LoadCore(args.coreFile.data(), error);
+    } else if (!args.traceFile.empty()) {
+      lldb::SBFileSpec file_spec(args.traceFile.data(), true);
+      dap.debugger.LoadTraceFromFile(error, file_spec);
     } else if (args.gdbRemotePort != LLDB_DAP_INVALID_PORT) {
       lldb::SBListener listener = dap.debugger.GetListener();
 
